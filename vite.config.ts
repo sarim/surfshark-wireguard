@@ -12,6 +12,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@": fileURLToPath(new URL("./src", import.meta.url)),
+      "~normalize.css/normalize.css": "normalize.css/normalize.css",
     },
   },
 });
