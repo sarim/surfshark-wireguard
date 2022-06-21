@@ -1,72 +1,71 @@
 <template>
-  <header>
-    <va-navbar color="dark" shape class="mb-2">
-      <template #left>
-        <va-navbar-item>
-          <img
-            alt="Vue logo"
-            class="logo"
-            src="./assets/logo.svg"
-            width="125"
-            height="125"
-          />
-        </va-navbar-item>
-      </template>
-      <template #center>
-        <va-navbar-item>Dark</va-navbar-item>
-      </template>
-      <template #right>
-        <va-navbar-item>Right</va-navbar-item>
-      </template>
-    </va-navbar>
-  </header>
-  <div class="content">Content</div>
-  <va-sidebar color="dark" minimizedWidth="64px" width="18rem">
-    <va-sidebar-item active-color="background">
-      <va-sidebar-item-content>
-        <va-sidebar-item-title>
-          background dark and auto text color
-        </va-sidebar-item-title>
-      </va-sidebar-item-content>
-    </va-sidebar-item>
-    <va-sidebar-item
-      v-for="item in items"
-      :key="item.to"
-      :active="item.active"
-      active-color="background"
-    >
-      <va-sidebar-item-content>
-        <va-icon :name="item.icon" />
-        <va-sidebar-item-title style="height: 24px">
-          {{ item.title }}
-        </va-sidebar-item-title>
-      </va-sidebar-item-content>
-    </va-sidebar-item>
-  </va-sidebar>
-  <main>
-    <HelloWorld msg="You did it!" />
-  </main>
+  <div class="app-layout">
+    <div class="app-layout__content">
+      <div class="app-layout__sidebar-wrapper" :class="{ minimized: false }">
+        <Sidebar :minimized="false" />
+      </div>
+      <div class="app-layout__page">
+        <div class="layout fluid gutter--xl">
+          <HelloWorld msg="ggg" />
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
-<script setup lang="ts">
+<script setup>
+import Sidebar from "./components/Sidebar.vue";
 import HelloWorld from "./components/HelloWorld.vue";
-
-const items = [
-  { title: "Dashboard", icon: "dashboard" },
-  { title: "Sidebar demo", icon: "room", active: true },
-  { title: "Loop", icon: "loop" },
-];
 </script>
 
 <style lang="scss">
-#app {
-  font-family: "Source Sans Pro", Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  color: #2c3e50;
-}
-body {
-  margin: 0;
-  background: var(--va-background);
+$mobileBreakPointPX: 640px;
+$tabletBreakPointPX: 768px;
+
+.app-layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  &__navbar {
+    min-height: 4rem;
+  }
+
+  &__content {
+    display: flex;
+    height: calc(100vh - 4rem);
+    flex: 1;
+
+    @media screen and (max-width: $tabletBreakPointPX) {
+      height: calc(100vh - 6.5rem);
+    }
+
+    .app-layout__sidebar-wrapper {
+      position: relative;
+      height: 100%;
+      background: var(--va-white);
+
+      @media screen and (max-width: $tabletBreakPointPX) {
+        &:not(.minimized) {
+          width: 100%;
+          height: 100%;
+          position: fixed;
+          top: 0;
+          z-index: 999;
+        }
+
+        .va-sidebar:not(.va-sidebar--minimized) {
+          // Z-index fix for preventing overflow for close button
+          z-index: -1;
+          .va-sidebar__menu {
+            padding: 0;
+          }
+        }
+      }
+    }
+  }
+  &__page {
+    flex-grow: 2;
+    overflow-y: scroll;
+  }
 }
 </style>
