@@ -7,8 +7,8 @@ import (
 )
 
 type login struct {
-	username string
-	password string
+	Username string `json:"username"`
+	Password string `json:"password"`
 }
 
 type authTokens struct {
@@ -30,7 +30,7 @@ func getLoginDetailsFromEnv() login {
 	username := os.Getenv("SURFSHARK_USERNAME")
 	password := os.Getenv("SURFSHARK_PASSWORD")
 
-	loginDetails := login{username: username, password: password}
+	loginDetails := login{Username: username, Password: password}
 
 	return loginDetails
 
