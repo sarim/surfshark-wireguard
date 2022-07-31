@@ -134,11 +134,17 @@ func registerPubKey(tokens authTokens, pubKey pubKey) {
 	fmt.Println(keyStatus)
 }
 
+func registerPubKeys(tokens authTokens, pubKeys []pubKey) {
+	for _, key := range pubKeys {
+		registerPubKey(tokens, key)
+	}
+}
+
 func main() {
 	loginData := getLoginDetailsFromEnv()
 	tokens := authenticate(loginData)
+	pubKeys := readConfigFile(".config")
 
-	registerPubKey(tokens, createPubKey("/iSp9a2vtvZs9Ic2VQAWEQRF9HJkmCYziyUcDtNNwWo2"))
+	registerPubKeys(tokens, pubKeys)
 
-	log.Println(tokens.Token)
 }
