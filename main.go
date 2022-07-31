@@ -2,7 +2,12 @@ package main
 
 import (
 	"bufio"
+	"bytes"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
 )
 
@@ -12,8 +17,8 @@ type login struct {
 }
 
 type authTokens struct {
-	token      string
-	renewToken string
+	Token      string `json:"token"`
+	RenewToken string `json:"renewToken"`
 }
 
 type pubKey struct {
@@ -69,9 +74,39 @@ func readConfigFile(filePath string) []pubKey {
 
 }
 
-func main() {
-	fmt.Println(getLoginDetailsFromEnv())
-	configs := readConfigFile(".config")
+func authenticate(loginData login) authTokens {
+	loginURL := "https://api.surfshark.com/v1/auth/login"
 
-	fmt.Println(configs)
+	jsonLoginData, err := json.Marshal(loginData)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	resp, err := http.Post(loginURL, "application/json", bytes.NewBuffer(jsonLoginData))
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		log.Fatalf("Unknown Status: %q", resp.Status)
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	var tokens authTokens
+
+	json.Unmarshal(body, &tokens)
+
+	return tokens
+
+}
+
+func main() {
+	loginData := getLoginDetailsFromEnv()
+	tokens := authenticate(loginData)
+
+	log.Println(tokens.Token)
 }
