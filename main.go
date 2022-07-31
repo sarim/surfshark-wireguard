@@ -175,7 +175,12 @@ func processKeys(token authTokens, pubKeys []pubKey) {
 func main() {
 	loginData := getLoginDetailsFromEnv()
 	tokens := authenticate(loginData)
-	pubKeys := readConfigFile(".config")
+
+	config_file_path := os.Getenv("CONFIG_FILE_PATH")
+	if config_file_path == "" {
+		config_file_path = ".config"
+	}
+	pubKeys := readConfigFile(config_file_path)
 
 	processKeys(tokens, pubKeys)
 
