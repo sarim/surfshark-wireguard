@@ -11,6 +11,8 @@ import (
 	"os"
 )
 
+const ApplicationJsonRequestType = "application/json"
+
 type login struct {
 	Username string `json:"username"`
 	Password string `json:"password"`
@@ -83,7 +85,7 @@ func authenticate(loginData login) authTokens {
 		log.Fatal(err)
 	}
 
-	resp, err := http.Post(loginURL, "application/json", bytes.NewBuffer(jsonLoginData))
+	resp, err := http.Post(loginURL, ApplicationJsonRequestType, bytes.NewBuffer(jsonLoginData))
 
 	if err != nil {
 		log.Fatal(err)
