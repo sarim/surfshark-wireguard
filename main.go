@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -56,7 +55,7 @@ func readConfigFile(filePath string) []pubKey {
 	readFile, err := os.Open(filePath)
 
 	if err != nil {
-		fmt.Println(err)
+		log.Panic(err)
 		os.Exit(1)
 	}
 
@@ -131,12 +130,45 @@ func registerPubKey(tokens authTokens, pubKey pubKey) {
 
 	json.Unmarshal(body, &keyStatus)
 
-	fmt.Println(keyStatus)
+	log.Println("Register: ", keyStatus)
 }
 
-func registerPubKeys(tokens authTokens, pubKeys []pubKey) {
+func extendPubKeyValidity(tokens authTokens, pubKey pubKey) {
+	pubKeyValidityExtendURL := "https://api.surfshark.com/v1/account/users/public-keys/validate"
+	bearer := "Bearer " + tokens.Token
+
+	jsonPubKey, _ := json.Marshal(pubKey)
+
+	req, _ := http.NewRequest("POST", pubKeyValidityExtendURL, bytes.NewBuffer(jsonPubKey))
+
+	req.Header.Add("Authorization", bearer)
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Fatalln("Error syncing pubkey:", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode == 404 {
+		registerPubKey(tokens, pubKey)
+		return
+	}
+
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	var keyStatus pubKeyStatus
+
+	json.Unmarshal(body, &keyStatus)
+
+	log.Println("Extend: ", keyStatus)
+}
+
+func processKeys(token authTokens, pubKeys []pubKey) {
 	for _, key := range pubKeys {
-		registerPubKey(tokens, key)
+		extendPubKeyValidity(token, key)
 	}
 }
 
@@ -145,6 +177,6 @@ func main() {
 	tokens := authenticate(loginData)
 	pubKeys := readConfigFile(".config")
 
-	registerPubKeys(tokens, pubKeys)
+	processKeys(tokens, pubKeys)
 
 }
