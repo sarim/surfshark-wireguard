@@ -24,13 +24,13 @@ type authTokens struct {
 }
 
 type pubKey struct {
-	pubKey string
+	PubKey string `json:"pubKey"`
 }
 
 type pubKeyStatus struct {
-	expiresAt string
-	pubKey    string
-	id        string
+	ExpiresAt string `json:"expiresAt"`
+	PubKey    string `json:"pubKey"`
+	Id        string `json:"id"`
 }
 
 func getLoginDetailsFromEnv() login {
@@ -46,7 +46,7 @@ func getLoginDetailsFromEnv() login {
 func createPubKey(key string) pubKey {
 	// TODO: Check for valid pubKey and return err
 
-	pKey := pubKey{pubKey: key}
+	pKey := pubKey{PubKey: key}
 
 	return pKey
 
@@ -106,9 +106,39 @@ func authenticate(loginData login) authTokens {
 
 }
 
+func registerPubKey(tokens authTokens, pubKey pubKey) {
+	pubKeyCreationURL := "https://api.surfshark.com/v1/account/users/public-keys"
+	bearer := "Bearer " + tokens.Token
+
+	jsonPubKey, _ := json.Marshal(pubKey)
+
+	req, _ := http.NewRequest("POST", pubKeyCreationURL, bytes.NewBuffer(jsonPubKey))
+
+	req.Header.Add("Authorization", bearer)
+
+	client := &http.Client{}
+
+	resp, err := client.Do(req)
+
+	if err != nil {
+		log.Fatalln("Error syncing pubkey:", err)
+	}
+	defer resp.Body.Close()
+
+	body, _ := ioutil.ReadAll(resp.Body)
+
+	var keyStatus pubKeyStatus
+
+	json.Unmarshal(body, &keyStatus)
+
+	fmt.Println(keyStatus)
+}
+
 func main() {
 	loginData := getLoginDetailsFromEnv()
 	tokens := authenticate(loginData)
+
+	registerPubKey(tokens, createPubKey("/iSp9a2vtvZs9Ic2VQAWEQRF9HJkmCYziyUcDtNNwWo2"))
 
 	log.Println(tokens.Token)
 }
