@@ -176,11 +176,11 @@ func main() {
 	loginData := getLoginDetailsFromEnv()
 	tokens := authenticate(loginData)
 
-	config_file_path := os.Getenv("CONFIG_FILE_PATH")
-	if config_file_path == "" {
-		config_file_path = ".config"
+	configFilePath := os.Getenv("CONFIG_FILE_PATH")
+	if configFilePath == "" {
+		configFilePath = ".config"
 	}
-	pubKeys := readConfigFile(config_file_path)
+	pubKeys := readConfigFile(configFilePath)
 
 	processKeys(tokens, pubKeys)
 
