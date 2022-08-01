@@ -59,7 +59,7 @@ func readConfigFile(filePath string) []pubKey {
 		os.Exit(1)
 	}
 
-	fileScanner := bufio.NewScanner((readFile))
+	fileScanner := bufio.NewScanner(readFile)
 	fileScanner.Split(bufio.ScanLines)
 	pubKeys := make([]pubKey, 0)
 
